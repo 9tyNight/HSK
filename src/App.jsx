@@ -354,10 +354,11 @@ export default function HSKApp() {
 }
 
 // ==========================================
-// CSS-IN-JS STYLES (COMPACT MODE)
+// CSS-IN-JS STYLES (MOBILE SCROLL FIX)
 // ==========================================
 const styles = {
-    layout: { display: 'flex', height: '100vh', width: '100%', overflow: 'hidden', position: 'relative', background: '#f8fafc' },
+    // FIX 1: Added 100dvh for mobile browsers
+    layout: { display: 'flex', minHeight: '100vh', height: '100dvh', width: '100%', overflow: 'hidden', position: 'relative', background: '#f8fafc' },
 
     // Sidebar
     sidebar: {
@@ -390,55 +391,52 @@ const styles = {
     },
 
     // Main Content
-    // Reduced padding bottom/top significantly to fit screen
-    mainContent: { flex: 1, background: '#f8fafc', overflowY: 'auto', padding: '15px', paddingBottom: '30px', position: 'relative', height: '100%' },
+    mainContent: { flex: 1, background: '#f8fafc', overflowY: 'auto', padding: '15px', position: 'relative', height: '100%' },
     overlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 45 },
 
     // Dashboard
-    dashboardContainer: { maxWidth: '800px', margin: '0 auto', textAlign: 'center', paddingTop: '20px' },
+    dashboardContainer: { maxWidth: '800px', margin: '0 auto', textAlign: 'center', paddingTop: '20px', paddingBottom: '40px' },
     dashTitle: { fontSize: '2rem', color: '#1e293b', marginBottom: '5px' },
     dashSub: { color: '#64748b', fontSize: '1rem', marginBottom: '30px' },
     statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px', marginBottom: '30px' },
     statCard: { background: 'white', padding: '20px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' },
     primaryBtn: { background: '#4f46e5', color: 'white', padding: '14px 28px', borderRadius: '12px', border: 'none', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px' },
 
-    // Workspace
-    workspace: { maxWidth: '900px', margin: '0 auto', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' },
+    // Workspace - FIX 2: Changed to minHeight so it can stretch and scroll!
+    workspace: { maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' },
 
-    // Top Bar - Minimal Margin
-    topBar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px', marginTop: '0px' },
+    topBar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
     activeBadge: { background: '#e0e7ff', color: '#4338ca', padding: '4px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold' },
-    backLink: { background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', marginBottom: '10px', textAlign: 'left', fontSize: '0.9rem' },
+    backLink: { background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', textAlign: 'left', fontSize: '0.9rem' },
 
-    // Flashcards - COMPACT SIZE
-    flashcardWrapper: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 'auto', padding: '10px 0' },
+    // Flashcards
+    flashcardWrapper: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', margin: '20px 0' },
     flashcard: {
         width: '100%', maxWidth: '400px',
-        height: '240px', // REDUCED FROM 350px -> 240px
+        minHeight: '220px',
         background: 'white',
         borderRadius: '20px', boxShadow: '0 8px 12px -3px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         cursor: 'pointer', position: 'relative', transition: 'transform 0.2s',
-        marginBottom: '10px'
+        marginBottom: '10px', padding: '20px'
     },
-    char: { fontSize: '4rem', fontWeight: '800', color: '#1e293b' }, // REDUCED FONT
+    char: { fontSize: '4rem', fontWeight: '800', color: '#1e293b' },
     audioBtn: { position: 'absolute', top: '10px', right: '10px', background: '#f1f5f9', border: 'none', borderRadius: '50%', padding: '8px', cursor: 'pointer', color: '#4f46e5' },
     cardBack: { textAlign: 'center', transition: 'opacity 0.3s' },
     pinyin: { fontSize: '1.5rem', color: '#4f46e5', fontWeight: '600' },
     en: { fontSize: '1.2rem', color: '#64748b' },
     hintText: { position: 'absolute', bottom: '10px', color: '#cbd5e1', fontSize: '0.8rem' },
 
-    // Controls - Tighter
     controlsBar: { display: 'flex', alignItems: 'center', gap: '20px', marginTop: '10px' },
     iconBtn: { background: 'white', border: '1px solid #e2e8f0', borderRadius: '50%', padding: '10px', cursor: 'pointer', color: '#475569', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' },
     counter: { fontSize: '1rem', fontWeight: '600', color: '#64748b' },
 
-    // Action Row - Tighter and smaller buttons
-    actionRow: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '10px' },
-    actionBtn: { padding: '12px', borderRadius: '12px', border: 'none', fontSize: '0.9rem', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' },
+    // Action Row - FIX 3: Flex wrap so buttons fit perfectly on narrow screens
+    actionRow: { display: 'flex', flexWrap: 'wrap', gap: '10px', paddingBottom: '30px' },
+    actionBtn: { flex: '1 1 140px', padding: '14px', borderRadius: '12px', border: 'none', fontSize: '0.9rem', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' },
 
     // Quiz
-    resultContainer: { textAlign: 'center', paddingTop: '40px' },
+    resultContainer: { textAlign: 'center', paddingTop: '40px', paddingBottom: '40px' },
     quizCard: { background: 'white', padding: '25px', borderRadius: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' },
     progressText: { color: '#94a3b8', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '1px', marginBottom: '8px' },
     questionText: { fontSize: '1.4rem', color: '#1e293b', marginBottom: '20px' },
@@ -447,7 +445,7 @@ const styles = {
     optLetter: { background: '#e2e8f0', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '6px', marginRight: '10px', fontWeight: 'bold', color: '#475569', fontSize: '0.9rem' },
 
     // Game
-    gameContainer: { maxWidth: '800px', margin: '0 auto', width: '100%', textAlign: 'center' },
+    gameContainer: { maxWidth: '800px', margin: '0 auto', width: '100%', textAlign: 'center', paddingBottom: '30px' },
     levelBadge: { display: 'inline-block', background: '#e0e7ff', color: '#4338ca', padding: '4px 12px', borderRadius: '12px', fontWeight: 'bold', fontSize: '0.8rem', marginBottom: '15px' },
     englishPrompt: { fontSize: '1.2rem', color: '#64748b', marginBottom: '20px' },
     dropZone: { minHeight: '80px', background: 'white', border: '3px dashed #cbd5e1', borderRadius: '16px', padding: '15px', display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' },

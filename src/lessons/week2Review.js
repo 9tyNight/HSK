@@ -1,0 +1,40 @@
+export default {
+    day: "Test 2",
+    title: "Week 2: Boss Battle",
+    vocab: [
+        { char: '怎么', pinyin: 'zěn me', en: 'How' },
+        { char: '怎么样', pinyin: 'zěn me yàng', en: 'How is it?' },
+        { char: '什么时候', pinyin: 'shén me shí hou', en: 'When' },
+        { char: '坐', pinyin: 'zuò', en: 'To sit / Take transport' },
+        { char: '本', pinyin: 'běn', en: 'Measure word (books)' },
+        { char: '里', pinyin: 'lǐ', en: 'Inside' },
+        { char: '学习', pinyin: 'xué xí', en: 'To study' },
+        { char: '打电话', pinyin: 'dǎ diàn huà', en: 'To call' },
+        { char: '东西', pinyin: 'dōng xi', en: 'Things' },
+        { char: '认识', pinyin: 'rèn shi', en: 'To know (a person)' },
+    ],
+    quiz: [
+        { q: "Logic Check: 'When are you going?'", options: ["你去什么时候？", "你什么时候去？", "什么时候你去？"], correct: 1 },
+        { q: "Logic Check: 'I go by plane'", options: ["我去飞机", "我坐飞机去", "我飞机坐"], correct: 1 },
+        { q: "Logic Check: 'Inside the hospital'", options: ["医院里", "里医院", "在医院"], correct: 0 },
+        { q: "Difference: 怎么 vs 怎么样?", options: ["How vs How is it", "What vs Who", "Where vs When"], correct: 0 },
+        { q: "Grammar Check: 'Three books'", options: ["三书", "三个书", "三本书"], correct: 2 },
+        { q: "Translate: 'How is the weather?'", options: ["天气怎么？", "天气怎么样？", "天气什么？"], correct: 1 },
+        { q: "Translate: 'Nice to meet you'", options: ["认识你很高兴", "你知道我", "我喜欢你"], correct: 0 },
+        { q: "Translate: 'What are you doing?'", options: ["你做哪儿？", "你在做什么？", "你是谁？"], correct: 1 },
+        { q: "Translate: 'I am calling him'", options: ["我打电话他", "我给他打电话", "我在打他电话"], correct: 1 }, // HSK 1 quirk, but "打电话" implies the action. We'll use a simpler form for sentences.
+        { q: "Vocabulary: 'Clothes'", options: ["东西", "衣服", "水果"], correct: 1 },
+    ],
+    sentences: [
+        { en: "How do you go to the hospital?", zh: ["你", "怎么", "去", "医院", "？"] },
+        { en: "When is he coming to Beijing?", zh: ["他", "什么时候", "来", "北京", "？"] },
+        { en: "How is this book?", zh: ["这", "本", "书", "怎么样", "？"] },
+        { en: "I am taking a taxi to the restaurant.", zh: ["我", "坐", "出租车", "去", "饭店", "。"] },
+        { en: "The cat is on the table.", zh: ["猫", "在", "桌子", "上", "。"] },
+        { en: "Nice to meet you.", zh: ["认识", "你", "很", "高兴", "。"] },
+        { en: "I want to buy some clothes.", zh: ["我", "想", "买", "些", "衣服", "。"] },
+        { en: "He is making a phone call.", zh: ["他", "在", "打", "电话", "。"] },
+        { en: "Where do you live?", zh: ["你", "住", "在", "哪儿", "？"] },
+        { en: "My mom is cooking.", zh: ["我的", "妈妈", "在", "做饭", "。"] },
+    ]
+};

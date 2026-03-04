@@ -1,0 +1,40 @@
+export default {
+    day: 7,
+    title: "Day 7: Wants & Senses",
+    vocab: [
+        { char: '想', pinyin: 'xiǎng', en: 'To want to / To think' },
+        { char: '喜欢', pinyin: 'xǐ huan', en: 'To like' },
+        { char: '看', pinyin: 'kàn', en: 'To look / watch / read' },
+        { char: '书', pinyin: 'shū', en: 'Book' },
+        { char: '听', pinyin: 'tīng', en: 'To listen' },
+        { char: '说', pinyin: 'shuō', en: 'To speak / say' },
+        { char: '汉语', pinyin: 'Hàn yǔ', en: 'Chinese (Language)' },
+        { char: '很', pinyin: 'hěn', en: 'Very (Adjective glue)' },
+        { char: '大', pinyin: 'dà', en: 'Big' },
+        { char: '小', pinyin: 'xiǎo', en: 'Small' },
+    ],
+    quiz: [
+        { q: "Translate: 'I like apples'", options: ["我想苹果", "我喜欢苹果", "我看苹果"], correct: 1 },
+        { q: "How do you say 'The apple is big'?", options: ["苹果是大", "苹果很大", "苹果大"], correct: 1 },
+        { q: "Translate: 'To read a book' (Lit: To look at a book)", options: ["看书", "听书", "说书"], correct: 0 },
+        { q: "What does 汉语 (Hàn yǔ) mean?", options: ["China", "Chinese Person", "Chinese Language"], correct: 2 },
+        { q: "Translate: 'I want to drink water'", options: ["我想喝水", "我喜欢喝水", "我看喝水"], correct: 0 },
+        { q: "Which character means 'Small'?", options: ["大", "小", "水"], correct: 1 },
+        { q: "Translate: 'He speaks Chinese'", options: ["他说汉语", "他听汉语", "他看汉语"], correct: 0 },
+        { q: "Translate: 'Very good'", options: ["是好", "好很", "很好"], correct: 2 },
+        { q: "Fill in the blank: 我 ___ 听 (I like to listen)", options: ["想", "喜欢", "很"], correct: 1 },
+        { q: "Translate: 'She wants to buy a book'", options: ["她想买书", "她喜欢买书", "她看买书"], correct: 0 },
+    ],
+    sentences: [
+        { en: "I like reading books.", zh: ["我", "喜欢", "看", "书", "。"] },
+        { en: "He wants to speak Chinese.", zh: ["他", "想", "说", "汉语", "。"] },
+        { en: "The apple is very big.", zh: ["苹果", "很", "大", "。"] },
+        { en: "I want to buy a book.", zh: ["我", "想", "买", "书", "。"] },
+        { en: "My friend likes drinking tea.", zh: ["我的", "朋友", "喜欢", "喝", "茶", "。"] },
+        { en: "Is the school small?", zh: ["学校", "小", "吗", "？"] },
+        { en: "He speaks very good Chinese.", zh: ["他", "说", "汉语", "很", "好", "。"] },
+        { en: "I do not want to eat.", zh: ["我", "不", "想", "吃", "。"] },
+        { en: "Do you like listening?", zh: ["你", "喜欢", "听", "吗", "？"] },
+        { en: "She is not at home.", zh: ["她", "不", "在", "家", "。"] }, // Review sentence
+    ]
+};
