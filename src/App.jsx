@@ -53,10 +53,11 @@ export default function HSKApp() {
     const [availableWords, setAvailableWords] = useState([]);
     const [gameFeedback, setGameFeedback] = useState("");
 
-    // --- NEW: Speech Recognition (Push to Talk) State ---
+    // Speech State
     const [isListening, setIsListening] = useState(false);
     const [speechFeedback, setSpeechFeedback] = useState(null);
-    const recognitionRef = useRef(null); // Keeps track of the microphone instance
+    const [heardText, setHeardText] = useState("");
+    const recognitionRef = useRef(null);
 
     const lesson = lessons[currentDay];
 
@@ -71,18 +72,18 @@ export default function HSKApp() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // --- NEW: Push-to-Talk Logic ---
-    const startListening = (targetText) => {
+    // --- TAP-TO-TALK LOGIC ---
+    const toggleListening = (targetText) => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
         if (!SpeechRecognition) {
-            alert("Your browser doesn't support speech recognition. Please use Google Chrome.");
+            alert("Your browser doesn't support speech recognition. Please use Google Chrome or Safari.");
             return;
         }
 
-        // Stop any previous active microphone
-        if (recognitionRef.current) {
-            try { recognitionRef.current.stop(); } catch (e) { }
+        if (isListening && recognitionRef.current) {
+            recognitionRef.current.stop();
+            return;
         }
 
         const recognition = new SpeechRecognition();
@@ -93,13 +94,14 @@ export default function HSKApp() {
         recognition.onstart = () => {
             setIsListening(true);
             setSpeechFeedback(null);
+            setHeardText("");
         };
 
         recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript;
             console.log("Heard:", transcript);
+            setHeardText(transcript);
 
-            // Clean strings for comparison (remove punctuation like periods or commas)
             const cleanTarget = targetText.replace(/[^\u4e00-\u9fa5]/g, '');
             const cleanHeard = transcript.replace(/[^\u4e00-\u9fa5]/g, '');
 
@@ -112,6 +114,13 @@ export default function HSKApp() {
 
         recognition.onerror = (event) => {
             console.error("Speech Error:", event.error);
+            if (event.error === 'not-allowed') {
+                setHeardText("Microphone access denied.");
+            } else if (event.error === 'no-speech') {
+                setHeardText("Didn't hear anything.");
+            } else {
+                setHeardText("Error: " + event.error);
+            }
             setSpeechFeedback('wrong');
             setIsListening(false);
         };
@@ -124,13 +133,6 @@ export default function HSKApp() {
         recognition.start();
     };
 
-    const stopListening = () => {
-        if (recognitionRef.current && isListening) {
-            recognitionRef.current.stop(); // Force it to stop and check what you said!
-            setIsListening(false);
-        }
-    };
-
     // --- ACTIONS ---
     const handleDaySelect = (index) => {
         setCurrentDay(index);
@@ -138,6 +140,7 @@ export default function HSKApp() {
         setVocabIndex(0);
         setShowAnswer(false);
         setSpeechFeedback(null);
+        setHeardText("");
         setCurrentVocab(shuffleArray(lessons[index].vocab));
         setSidebarOpen(false);
     };
@@ -155,6 +158,7 @@ export default function HSKApp() {
         setBuiltSentence([]);
         setGameFeedback("");
         setSpeechFeedback(null);
+        setHeardText("");
         setAvailableWords(shuffleArray(lesson.sentences[0].zh));
         setSidebarOpen(false);
     };
@@ -184,6 +188,7 @@ export default function HSKApp() {
             setBuiltSentence([]);
             setGameFeedback("");
             setSpeechFeedback(null);
+            setHeardText("");
             setAvailableWords(shuffleArray(lesson.sentences[gameIndex + 1].zh));
         } else {
             setMode('dashboard');
@@ -279,32 +284,10 @@ export default function HSKApp() {
                 </div>
 
                 <div style={styles.flashcardWrapper}>
+                    {/* The Flashcard */}
                     <div style={styles.flashcard} onClick={() => setShowAnswer(!showAnswer)}>
                         <div style={styles.cardFront}>
                             <div style={styles.char}>{word.char}</div>
-
-                            <div style={styles.cardActions}>
-                                <button style={styles.audioBtn} onClick={(e) => { e.stopPropagation(); speak(word.char); }}>
-                                    <Volume2 size={20} />
-                                </button>
-
-                                {/* NEW PUSH TO TALK BUTTON */}
-                                <button
-                                    style={{
-                                        ...styles.audioBtn,
-                                        background: isListening ? '#fee2e2' : '#f1f5f9',
-                                        color: isListening ? '#ef4444' : '#4f46e5',
-                                        userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none'
-                                    }}
-                                    onMouseDown={(e) => { e.stopPropagation(); startListening(word.char); }}
-                                    onMouseUp={(e) => { e.stopPropagation(); stopListening(); }}
-                                    onMouseLeave={(e) => { e.stopPropagation(); stopListening(); }}
-                                    onTouchStart={(e) => { e.stopPropagation(); startListening(word.char); }}
-                                    onTouchEnd={(e) => { e.stopPropagation(); stopListening(); }}
-                                >
-                                    <Mic size={20} />
-                                </button>
-                            </div>
                         </div>
 
                         <div style={{ ...styles.cardBack, opacity: showAnswer ? 1 : 0 }}>
@@ -312,19 +295,45 @@ export default function HSKApp() {
                             <div style={styles.en}>{word.en}</div>
                         </div>
 
-                        {!showAnswer && <div style={styles.hintText}>Click to reveal</div>}
-
-                        {speechFeedback === 'correct' && <div style={styles.feedbackGood}>🎉 Perfect Pronunciation!</div>}
-                        {speechFeedback === 'wrong' && <div style={styles.feedbackBad}>Try again! Keep practicing.</div>}
-                        {isListening && <div style={styles.feedbackListening}>Hold and speak...</div>}
+                        {!showAnswer && <div style={styles.hintText}>Tap card to flip</div>}
                     </div>
 
+                    {/* Action Tools OUTSIDE the card */}
+                    <div style={styles.cardTools}>
+                        <button style={styles.toolBtn} onClick={() => speak(word.char)}>
+                            <Volume2 size={20} /> Listen
+                        </button>
+                        <button
+                            style={{
+                                ...styles.toolBtn,
+                                background: isListening ? '#fee2e2' : 'white',
+                                color: isListening ? '#ef4444' : '#4f46e5',
+                                borderColor: isListening ? '#ef4444' : '#e2e8f0'
+                            }}
+                            onClick={() => toggleListening(word.char)}
+                        >
+                            <Mic size={20} /> {isListening ? "Stop" : "Speak"}
+                        </button>
+                    </div>
+
+                    {/* BIG CLEAR FEEDBACK (Matches Game Style exactly) */}
+                    <div style={styles.feedbackContainer}>
+                        {isListening && <div style={{ fontSize: '1rem', fontWeight: 'bold', color: '#d97706', animation: 'pulse 1.5s infinite' }}>Listening... (Tap to stop)</div>}
+
+                        {!isListening && heardText && (
+                            <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: speechFeedback === 'correct' ? '#16a34a' : '#ef4444' }}>
+                                Heard: "{heardText}" {speechFeedback === 'correct' ? '🎉' : '❌'}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Navigation */}
                     <div style={styles.controlsBar}>
-                        <button style={styles.iconBtn} disabled={vocabIndex === 0} onClick={() => { setVocabIndex(i => i - 1); setShowAnswer(false); setSpeechFeedback(null); }}>
+                        <button style={styles.iconBtn} disabled={vocabIndex === 0} onClick={() => { setVocabIndex(i => i - 1); setShowAnswer(false); setSpeechFeedback(null); setHeardText(""); }}>
                             <ChevronLeft size={20} />
                         </button>
                         <span style={styles.counter}>{vocabIndex + 1} / {lesson.vocab.length}</span>
-                        <button style={styles.iconBtn} disabled={vocabIndex === lesson.vocab.length - 1} onClick={() => { setVocabIndex(i => i + 1); setShowAnswer(false); setSpeechFeedback(null); }}>
+                        <button style={styles.iconBtn} disabled={vocabIndex === lesson.vocab.length - 1} onClick={() => { setVocabIndex(i => i + 1); setShowAnswer(false); setSpeechFeedback(null); setHeardText(""); }}>
                             <ChevronRight size={20} />
                         </button>
                     </div>
@@ -399,26 +408,23 @@ export default function HSKApp() {
                         <div style={styles.pronounceBox}>
                             <p style={{ marginBottom: '10px', color: '#64748b', fontSize: '0.9rem' }}>Now practice saying it!</p>
 
-                            {/* NEW PUSH TO TALK BUTTON */}
                             <button
                                 style={{
                                     ...styles.micBtnLg,
                                     background: isListening ? '#fee2e2' : '#f1f5f9',
                                     color: isListening ? '#ef4444' : '#4f46e5',
-                                    border: isListening ? '2px solid #ef4444' : '2px solid transparent',
-                                    userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none'
+                                    border: isListening ? '2px solid #ef4444' : '2px solid transparent'
                                 }}
-                                onMouseDown={() => startListening(targetSentence)}
-                                onMouseUp={stopListening}
-                                onMouseLeave={stopListening}
-                                onTouchStart={(e) => { e.stopPropagation(); startListening(targetSentence); }}
-                                onTouchEnd={(e) => { e.stopPropagation(); stopListening(); }}
+                                onClick={() => toggleListening(targetSentence)}
                             >
-                                <Mic size={24} /> {isListening ? "Release to Check" : "Hold to Talk"}
+                                <Mic size={24} /> {isListening ? "Listening... (Tap to stop)" : "Tap to Speak"}
                             </button>
 
-                            {speechFeedback === 'correct' && <div style={styles.feedbackGood}>🎉 Perfect!</div>}
-                            {speechFeedback === 'wrong' && <div style={styles.feedbackBad}>Not quite, try again!</div>}
+                            {!isListening && heardText && (
+                                <div style={{ marginTop: '10px', fontSize: '1.1rem', fontWeight: 'bold', color: speechFeedback === 'correct' ? '#16a34a' : '#ef4444' }}>
+                                    Heard: "{heardText}" {speechFeedback === 'correct' ? '🎉' : '❌'}
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -484,41 +490,21 @@ export default function HSKApp() {
 const styles = {
     layout: { display: 'flex', minHeight: '100vh', height: '100dvh', width: '100%', overflow: 'hidden', position: 'relative', background: '#f8fafc' },
 
-    // Sidebar
-    sidebar: {
-        background: '#ffffff', borderRight: '1px solid #e2e8f0',
-        display: 'flex', flexDirection: 'column', height: '100%',
-        zIndex: 50, top: 0, left: 0,
-        transition: 'transform 0.3s ease',
-    },
+    sidebar: { background: '#ffffff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', height: '100%', zIndex: 50, top: 0, left: 0, transition: 'transform 0.3s ease' },
     sidebarHeader: { padding: '16px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
     logo: { fontWeight: '800', fontSize: '1.1rem', color: '#4f46e5', cursor: 'pointer' },
     closeBtn: { background: 'none', border: 'none', cursor: 'pointer' },
     sidebarContent: { flex: 1, overflowY: 'auto', padding: '10px', display: 'flex', flexDirection: 'column' },
     sectionTitle: { fontSize: '0.7rem', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '15px', marginBottom: '8px', paddingLeft: '10px' },
     lessonList: { marginBottom: '10px' },
-    navItem: {
-        display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
-        width: '100%', padding: '10px 14px', border: 'none', borderRadius: '8px',
-        cursor: 'pointer', marginBottom: '2px', textAlign: 'left', transition: 'background 0.2s', fontSize: '0.9rem'
-    },
+    navItem: { display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', padding: '10px 14px', border: 'none', borderRadius: '8px', cursor: 'pointer', marginBottom: '2px', textAlign: 'left', transition: 'background 0.2s', fontSize: '0.9rem' },
     gamesList: { display: 'flex', flexDirection: 'column', gap: '5px' },
-    gameNavItem: {
-        display: 'flex', alignItems: 'center', gap: '8px',
-        width: '100%', padding: '10px 14px', border: 'none', borderRadius: '8px',
-        cursor: 'pointer', textAlign: 'left', background: '#f0f9ff', color: '#0284c7', fontWeight: '600', fontSize: '0.9rem'
-    },
-    mobileHeader: {
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '12px', background: 'white', borderBottom: '1px solid #e2e8f0',
-        position: 'absolute', top: 0, width: '100%', zIndex: 40,
-    },
+    gameNavItem: { display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: '10px 14px', border: 'none', borderRadius: '8px', cursor: 'pointer', textAlign: 'left', background: '#f0f9ff', color: '#0284c7', fontWeight: '600', fontSize: '0.9rem' },
 
-    // Main Content
+    mobileHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: 'white', borderBottom: '1px solid #e2e8f0', position: 'absolute', top: 0, width: '100%', zIndex: 40 },
     mainContent: { flex: 1, background: '#f8fafc', overflowY: 'auto', padding: '15px', position: 'relative', height: '100%' },
     overlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 45 },
 
-    // Dashboard
     dashboardContainer: { maxWidth: '800px', margin: '0 auto', textAlign: 'center', paddingTop: '20px', paddingBottom: '40px' },
     dashTitle: { fontSize: '2rem', color: '#1e293b', marginBottom: '5px' },
     dashSub: { color: '#64748b', fontSize: '1rem', marginBottom: '30px' },
@@ -526,37 +512,24 @@ const styles = {
     statCard: { background: 'white', padding: '20px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' },
     primaryBtn: { background: '#4f46e5', color: 'white', padding: '14px 28px', borderRadius: '12px', border: 'none', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px' },
 
-    // Workspace
-    workspace: { maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' },
-
+    workspace: { maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '15px' },
     topBar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
     activeBadge: { background: '#e0e7ff', color: '#4338ca', padding: '4px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold' },
     backLink: { background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', textAlign: 'left', fontSize: '0.9rem' },
 
-    // Flashcards
     flashcardWrapper: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', margin: '10px 0' },
-    flashcard: {
-        width: '100%', maxWidth: '400px',
-        minHeight: '240px',
-        background: 'white',
-        borderRadius: '20px', boxShadow: '0 8px 12px -3px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        cursor: 'pointer', position: 'relative', transition: 'transform 0.2s',
-        marginBottom: '10px', padding: '20px'
-    },
+    flashcard: { width: '100%', maxWidth: '400px', minHeight: '220px', background: 'white', borderRadius: '20px', boxShadow: '0 8px 12px -3px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative', transition: 'transform 0.2s', padding: '20px' },
     char: { fontSize: '4rem', fontWeight: '800', color: '#1e293b' },
-
-    cardActions: { position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '8px', flexDirection: 'column' },
-    audioBtn: { background: '#f1f5f9', border: 'none', borderRadius: '50%', padding: '10px', cursor: 'pointer', color: '#4f46e5', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-
     cardBack: { textAlign: 'center', transition: 'opacity 0.3s' },
     pinyin: { fontSize: '1.5rem', color: '#4f46e5', fontWeight: '600' },
     en: { fontSize: '1.2rem', color: '#64748b' },
     hintText: { position: 'absolute', bottom: '15px', color: '#cbd5e1', fontSize: '0.8rem' },
 
-    feedbackGood: { position: 'absolute', bottom: '10px', background: '#dcfce7', color: '#16a34a', padding: '4px 12px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 'bold' },
-    feedbackBad: { position: 'absolute', bottom: '10px', background: '#fee2e2', color: '#ef4444', padding: '4px 12px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 'bold' },
-    feedbackListening: { position: 'absolute', bottom: '10px', background: '#fef3c7', color: '#d97706', padding: '4px 12px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 'bold', animation: 'pulse 1.5s infinite' },
+    cardTools: { display: 'flex', gap: '10px', marginTop: '15px' },
+    toolBtn: { display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '12px', border: '2px solid #e2e8f0', background: 'white', color: '#4f46e5', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' },
+
+    // NEW: Text Feedback Container
+    feedbackContainer: { minHeight: '30px', marginTop: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' },
 
     controlsBar: { display: 'flex', alignItems: 'center', gap: '20px', marginTop: '10px' },
     iconBtn: { background: 'white', border: '1px solid #e2e8f0', borderRadius: '50%', padding: '10px', cursor: 'pointer', color: '#475569', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' },
@@ -565,7 +538,6 @@ const styles = {
     actionRow: { display: 'flex', flexWrap: 'wrap', gap: '10px', paddingBottom: '30px' },
     actionBtn: { flex: '1 1 140px', padding: '14px', borderRadius: '12px', border: 'none', fontSize: '0.9rem', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' },
 
-    // Quiz
     resultContainer: { textAlign: 'center', paddingTop: '40px', paddingBottom: '40px' },
     quizCard: { background: 'white', padding: '25px', borderRadius: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' },
     progressText: { color: '#94a3b8', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '1px', marginBottom: '8px' },
@@ -574,7 +546,6 @@ const styles = {
     optionBtn: { padding: '14px', background: '#f8fafc', border: '2px solid #e2e8f0', borderRadius: '12px', textAlign: 'left', fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'all 0.2s' },
     optLetter: { background: '#e2e8f0', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '6px', marginRight: '10px', fontWeight: 'bold', color: '#475569', fontSize: '0.9rem' },
 
-    // Game
     gameContainer: { maxWidth: '800px', margin: '0 auto', width: '100%', textAlign: 'center', paddingBottom: '30px' },
     levelBadge: { display: 'inline-block', background: '#e0e7ff', color: '#4338ca', padding: '4px 12px', borderRadius: '12px', fontWeight: 'bold', fontSize: '0.8rem', marginBottom: '15px' },
     englishPrompt: { fontSize: '1.2rem', color: '#64748b', marginBottom: '20px' },
