@@ -1,0 +1,38 @@
+export default {
+    day: 2,
+    title: "Day 2: Negation",
+    vocab: [
+        { char: '不', pinyin: 'bù', en: 'Not / No' },
+        { char: '的', pinyin: 'de', en: "'s (Possessive)" },
+        { char: '好', pinyin: 'hǎo', en: 'Good' },
+        { char: '朋友', pinyin: 'péng you', en: 'Friend' },
+        { char: '美国', pinyin: 'Měi guó', en: 'USA' },
+        { char: '叫', pinyin: 'jiào', en: 'Called' },
+        { char: '什么', pinyin: 'shén me', en: 'What' },
+        { char: '名字', pinyin: 'míng zi', en: 'Name' },
+    ],
+    quiz: [
+        { q: "Translate: 'My Friend'", options: ["我朋友", "我的朋友", "朋友的"], correct: 1 },
+        { q: "Translate: 'He is not American'", options: ["他不美国人", "他不是美国人", "他是美国人"], correct: 1 },
+        { q: "What is 'Name'?", options: ["名字", "什么", "叫"], correct: 0 },
+        { q: "Translate: 'What is your name?'", options: ["你叫什么名字？", "你是名字什么？", "你什么名字？"], correct: 0 },
+        { q: "Translate: 'Good Teacher'", options: ["好老师", "老师好", "我是老师"], correct: 0 },
+        { q: "Translate: 'She is not my friend'", options: ["她不是我的朋友", "她是不我朋友", "她没有朋友"], correct: 0 },
+        { q: "What is 'USA'?", options: ["中国", "美国", "英国"], correct: 1 },
+        { q: "How do you say 'What'?", options: ["什么", "怎么", "叫"], correct: 0 },
+        { q: "Translate: 'His Name'", options: ["他的名字", "我的名字", "名字他"], correct: 0 },
+        { q: "Translate: 'I am not a student'", options: ["我不是学生", "我不学生", "没有学生"], correct: 0 },
+    ],
+    sentences: [
+        { en: "He is my friend.", zh: ["他", "是", "我的", "朋友", "。"] },
+        { en: "What is your name?", zh: ["你", "叫", "什么", "名字", "？"] },
+        { en: "She is not American.", zh: ["她", "不是", "美国人", "。"] },
+        { en: "My teacher is good.", zh: ["我的", "老师", "好", "。"] },
+        { en: "I am not Chinese.", zh: ["我", "不是", "中国人", "。"] },
+        { en: "Is he your friend?", zh: ["他", "是", "你的", "朋友", "吗", "？"] },
+        { en: "What is her name?", zh: ["她", "叫", "什么", "名字", "？"] },
+        { en: "My name is [Name].", zh: ["我的", "名字", "是", "...", "。"] },
+        { en: "You are not a teacher.", zh: ["你", "不是", "老师", "。"] },
+        { en: "Is your friend American?", zh: ["你的", "朋友", "是", "美国人", "吗", "？"] },
+    ]
+};

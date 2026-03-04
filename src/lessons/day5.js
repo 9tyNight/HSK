@@ -1,0 +1,38 @@
+export default {
+    day: 5,
+    title: "Day 5: Dates & Time",
+    vocab: [
+        { char: '月', pinyin: 'yuè', en: 'Month / Moon' },
+        { char: '号', pinyin: 'hào', en: 'Day (Date)' },
+        { char: '今天', pinyin: 'jīn tiān', en: 'Today' },
+        { char: '明天', pinyin: 'míng tiān', en: 'Tomorrow' },
+        { char: '昨天', pinyin: 'zuó tiān', en: 'Yesterday' },
+        { char: '年', pinyin: 'nián', en: 'Year' },
+        { char: '星期', pinyin: 'xīng qī', en: 'Week' },
+        { char: '去', pinyin: 'qù', en: 'To go' },
+    ],
+    quiz: [
+        { q: "Translate: 'September 8th'", options: ["八月九号", "九月八号", "星期八"], correct: 1 },
+        { q: "Translate: 'I am going to school tomorrow.'", options: ["我明天去学校", "我去学校明天", "明天我是学校"], correct: 0 },
+        { q: "What is 'Wednesday'?", options: ["星期二", "星期四", "星期三"], correct: 2 },
+        { q: "Fill in: 昨天我 __ 去学校 (Yesterday I did not go to school)", options: ["不", "没", "无"], correct: 1 },
+        { q: "Translate: 'Today is Monday'", options: ["今天星期一", "明天星期一", "昨天星期一"], correct: 0 },
+        { q: "Translate: 'I am going to China'", options: ["我去中国", "我在中国", "我是中国"], correct: 0 },
+        { q: "Translate: 'Year 2024'", options: ["二零二四年", "二零二四月", "二零二四号"], correct: 0 },
+        { q: "What is 'Yesterday'?", options: ["今天", "明天", "昨天"], correct: 2 },
+        { q: "Translate: 'Are you going home?'", options: ["你去家吗？", "你回家吗？", "Both work"], correct: 2 },
+        { q: "Translate: 'January 1st'", options: ["一月一号", "一号一月", "一年一月"], correct: 0 },
+    ],
+    sentences: [
+        { en: "I am going to school tomorrow.", zh: ["我", "明天", "去", "学校", "。"] },
+        { en: "Today is Monday.", zh: ["今天", "是", "星期一", "。"] },
+        { en: "Yesterday I did not go to China.", zh: ["昨天", "我", "没", "去", "中国", "。"] },
+        { en: "Are you going to the USA?", zh: ["你", "去", "美国", "吗", "？"] },
+        { en: "My friend is going home.", zh: ["我的", "朋友", "去", "家", "。"] },
+        { en: "Is tomorrow Tuesday?", zh: ["明天", "是", "星期二", "吗", "？"] },
+        { en: "I am not going to school today.", zh: ["我", "今天", "不", "去", "学校", "。"] },
+        { en: "What day is today?", zh: ["今天", "是", "几", "号", "？"] },
+        { en: "He went to school yesterday.", zh: ["他", "昨天", "去", "学校", "了", "。"] },
+        { en: "I go to China in September.", zh: ["我", "九月", "去", "中国", "。"] },
+    ]
+};
