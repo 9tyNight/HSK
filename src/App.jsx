@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import lessons from './lessons';
 import {
     BookOpen, Gamepad2, Trophy, ChevronLeft, ChevronRight,
@@ -53,9 +53,10 @@ export default function HSKApp() {
     const [availableWords, setAvailableWords] = useState([]);
     const [gameFeedback, setGameFeedback] = useState("");
 
-    // --- NEW: Speech Recognition State ---
+    // --- NEW: Speech Recognition (Push to Talk) State ---
     const [isListening, setIsListening] = useState(false);
-    const [speechFeedback, setSpeechFeedback] = useState(null); // 'correct', 'wrong', null
+    const [speechFeedback, setSpeechFeedback] = useState(null);
+    const recognitionRef = useRef(null); // Keeps track of the microphone instance
 
     const lesson = lessons[currentDay];
 
@@ -70,8 +71,8 @@ export default function HSKApp() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // --- NEW: Pronunciation Check Function ---
-    const checkPronunciation = (targetText) => {
+    // --- NEW: Push-to-Talk Logic ---
+    const startListening = (targetText) => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
         if (!SpeechRecognition) {
@@ -79,8 +80,13 @@ export default function HSKApp() {
             return;
         }
 
+        // Stop any previous active microphone
+        if (recognitionRef.current) {
+            try { recognitionRef.current.stop(); } catch (e) { }
+        }
+
         const recognition = new SpeechRecognition();
-        recognition.lang = 'zh-CN'; // Set language to Chinese
+        recognition.lang = 'zh-CN';
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
 
@@ -94,10 +100,10 @@ export default function HSKApp() {
             console.log("Heard:", transcript);
 
             // Clean strings for comparison (remove punctuation like periods or commas)
-            const cleanTarget = targetText.replace(/[^\u4e00-\u9fa5]/g, ''); // Keep only Chinese characters
+            const cleanTarget = targetText.replace(/[^\u4e00-\u9fa5]/g, '');
             const cleanHeard = transcript.replace(/[^\u4e00-\u9fa5]/g, '');
 
-            if (cleanHeard.includes(cleanTarget) || cleanTarget.includes(cleanHeard)) {
+            if (cleanHeard && (cleanHeard.includes(cleanTarget) || cleanTarget.includes(cleanHeard))) {
                 setSpeechFeedback('correct');
             } else {
                 setSpeechFeedback('wrong');
@@ -106,7 +112,7 @@ export default function HSKApp() {
 
         recognition.onerror = (event) => {
             console.error("Speech Error:", event.error);
-            setSpeechFeedback('error');
+            setSpeechFeedback('wrong');
             setIsListening(false);
         };
 
@@ -114,7 +120,15 @@ export default function HSKApp() {
             setIsListening(false);
         };
 
+        recognitionRef.current = recognition;
         recognition.start();
+    };
+
+    const stopListening = () => {
+        if (recognitionRef.current && isListening) {
+            recognitionRef.current.stop(); // Force it to stop and check what you said!
+            setIsListening(false);
+        }
     };
 
     // --- ACTIONS ---
@@ -269,21 +283,24 @@ export default function HSKApp() {
                         <div style={styles.cardFront}>
                             <div style={styles.char}>{word.char}</div>
 
-                            {/* NEW: Button Group for Audio & Mic */}
                             <div style={styles.cardActions}>
                                 <button style={styles.audioBtn} onClick={(e) => { e.stopPropagation(); speak(word.char); }}>
                                     <Volume2 size={20} />
                                 </button>
+
+                                {/* NEW PUSH TO TALK BUTTON */}
                                 <button
                                     style={{
                                         ...styles.audioBtn,
                                         background: isListening ? '#fee2e2' : '#f1f5f9',
-                                        color: isListening ? '#ef4444' : '#4f46e5'
+                                        color: isListening ? '#ef4444' : '#4f46e5',
+                                        userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none'
                                     }}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        checkPronunciation(word.char);
-                                    }}
+                                    onMouseDown={(e) => { e.stopPropagation(); startListening(word.char); }}
+                                    onMouseUp={(e) => { e.stopPropagation(); stopListening(); }}
+                                    onMouseLeave={(e) => { e.stopPropagation(); stopListening(); }}
+                                    onTouchStart={(e) => { e.stopPropagation(); startListening(word.char); }}
+                                    onTouchEnd={(e) => { e.stopPropagation(); stopListening(); }}
                                 >
                                     <Mic size={20} />
                                 </button>
@@ -297,10 +314,9 @@ export default function HSKApp() {
 
                         {!showAnswer && <div style={styles.hintText}>Click to reveal</div>}
 
-                        {/* NEW: Pronunciation Feedback */}
                         {speechFeedback === 'correct' && <div style={styles.feedbackGood}>🎉 Perfect Pronunciation!</div>}
                         {speechFeedback === 'wrong' && <div style={styles.feedbackBad}>Try again! Keep practicing.</div>}
-                        {isListening && <div style={styles.feedbackListening}>Listening...</div>}
+                        {isListening && <div style={styles.feedbackListening}>Hold and speak...</div>}
                     </div>
 
                     <div style={styles.controlsBar}>
@@ -379,20 +395,26 @@ export default function HSKApp() {
                         {builtSentence.map((w, i) => <span key={i} style={styles.wordBubble}>{w}</span>)}
                     </div>
 
-                    {/* NEW: Pronunciation check after getting the sentence right */}
                     {isCorrect && (
                         <div style={styles.pronounceBox}>
                             <p style={{ marginBottom: '10px', color: '#64748b', fontSize: '0.9rem' }}>Now practice saying it!</p>
+
+                            {/* NEW PUSH TO TALK BUTTON */}
                             <button
                                 style={{
                                     ...styles.micBtnLg,
                                     background: isListening ? '#fee2e2' : '#f1f5f9',
                                     color: isListening ? '#ef4444' : '#4f46e5',
-                                    border: isListening ? '2px solid #ef4444' : '2px solid transparent'
+                                    border: isListening ? '2px solid #ef4444' : '2px solid transparent',
+                                    userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none'
                                 }}
-                                onClick={() => checkPronunciation(targetSentence)}
+                                onMouseDown={() => startListening(targetSentence)}
+                                onMouseUp={stopListening}
+                                onMouseLeave={stopListening}
+                                onTouchStart={(e) => { e.stopPropagation(); startListening(targetSentence); }}
+                                onTouchEnd={(e) => { e.stopPropagation(); stopListening(); }}
                             >
-                                <Mic size={24} /> {isListening ? "Listening..." : "Check Pronunciation"}
+                                <Mic size={24} /> {isListening ? "Release to Check" : "Hold to Talk"}
                             </button>
 
                             {speechFeedback === 'correct' && <div style={styles.feedbackGood}>🎉 Perfect!</div>}
@@ -524,7 +546,6 @@ const styles = {
     },
     char: { fontSize: '4rem', fontWeight: '800', color: '#1e293b' },
 
-    // NEW: Card Actions (Audio & Mic)
     cardActions: { position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '8px', flexDirection: 'column' },
     audioBtn: { background: '#f1f5f9', border: 'none', borderRadius: '50%', padding: '10px', cursor: 'pointer', color: '#4f46e5', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' },
 
@@ -533,7 +554,6 @@ const styles = {
     en: { fontSize: '1.2rem', color: '#64748b' },
     hintText: { position: 'absolute', bottom: '15px', color: '#cbd5e1', fontSize: '0.8rem' },
 
-    // NEW: Feedback Badges
     feedbackGood: { position: 'absolute', bottom: '10px', background: '#dcfce7', color: '#16a34a', padding: '4px 12px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 'bold' },
     feedbackBad: { position: 'absolute', bottom: '10px', background: '#fee2e2', color: '#ef4444', padding: '4px 12px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 'bold' },
     feedbackListening: { position: 'absolute', bottom: '10px', background: '#fef3c7', color: '#d97706', padding: '4px 12px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 'bold', animation: 'pulse 1.5s infinite' },
@@ -561,7 +581,6 @@ const styles = {
     dropZone: { minHeight: '80px', background: 'white', border: '3px dashed #cbd5e1', borderRadius: '16px', padding: '15px', display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' },
     wordBubble: { background: '#4f46e5', color: 'white', padding: '8px 16px', borderRadius: '20px', fontSize: '1.1rem', fontWeight: '600' },
 
-    // NEW: Pronunciation section in Game
     pronounceBox: { background: '#f8fafc', border: '1px solid #e2e8f0', padding: '20px', borderRadius: '16px', marginBottom: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' },
     micBtnLg: { padding: '12px 24px', borderRadius: '30px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1rem', fontWeight: 'bold', transition: 'all 0.2s' },
 
