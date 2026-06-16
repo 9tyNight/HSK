@@ -1,16 +1,47 @@
-# React + Vite
+# MandarinFlow HSK Learning Studio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+MandarinFlow is a polished HSK Chinese learning web app built from an older lesson demo and redesigned as a client-ready education product. It combines lesson planning, flashcards, quizzes, sentence building, audio playback, progress metrics, and responsive mobile layouts in one React/Vite application.
 
-Currently, two official plugins are available:
+## Highlights
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Two-week HSK study plan with lesson progress and completion states
+- Flashcard workspace with Chinese characters, pinyin, English meaning, and audio playback
+- Sentence builder practice flow for active recall and speaking preparation
+- Quiz review mode with scoring and completion feedback
+- Responsive dashboard for desktop, tablet, and mobile learners
+- Runtime text normalizer that repairs mojibake in the original lesson files
+- Accessible focus states, high-contrast UI, reduced-motion support, and keyboard-friendly controls
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19
+- Vite 7
+- Lucide React icons
+- CSS modules-style application stylesheet
 
-## Expanding the ESLint configuration
+## Local Development
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+npm run dev
+```
+
+## Production Build
+
+```bash
+npm run lint
+npm run build
+```
+
+## Product Extension Ideas
+
+- Add user accounts and saved learning progress
+- Connect lessons to a CMS or tutor admin dashboard
+- Add spaced-repetition scheduling for vocabulary review
+- Store quiz attempts and learner analytics in a backend
+- Add Stripe subscriptions for course access
+- Package the interface as a mobile app with React Native or Capacitor
+
+## Portfolio Positioning
+
+This project is designed to demonstrate UI/UX redesign, education product thinking, React implementation, responsive design, and client-ready presentation assets for a language learning platform.
